@@ -2,7 +2,7 @@ $fn = 100;
 row = 5;
 col = 12;
 
-plate_thickness = 5;
+plate_thickness = 4;
 plate_length = 231;
 plate_width = 104;
 
@@ -129,8 +129,8 @@ module teensy_32 () {
 };
 
 module case (length, width, plate_thick, depth, thickness) {
-    shell_thick = 5;
-    lip_height = 4;
+    shell_thick = 3;
+    lip_height = 7;
     plate_lip = 7;
     space_height = depth - (plate_thick + lip_height) - shell_thick;
     difference () {
@@ -175,10 +175,10 @@ module case (length, width, plate_thick, depth, thickness) {
     };
 };
 
-//translate([5 + plate_length, 5, 30-4]) {
+//translate([5 + plate_length, 5, 20]) {
 //    rotate([0,180,0]) {
-//        color("green") keyboard_plate(plate_length,     plate_width, plate_thickness);
- //   };
+//        color("green") keyboard_plate(plate_length, plate_width, plate_thickness + (5 - plate_thickness));
+//   };
 //};
 
 color("blue") case(plate_length, plate_width, plate_thickness, 20);
