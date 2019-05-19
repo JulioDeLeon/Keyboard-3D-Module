@@ -8,7 +8,7 @@ hole_length = 14;
 hole_width = 14;
 
 // case dimensions
-front_height = 12.25;
+front_height = 10;
 back_height = 22.25;
 height_diff = front_height - back_height;
 case_thickness = 1.5;
@@ -33,6 +33,16 @@ back_angle_a = 180 - (90 + rotate_f);
 back_bottom_length = sin(back_angle_a) * case_width;
 b_back_height = sqrt(pow(case_width, 2) - pow(back_bottom_length, 2));
 
+// teensy calculations 
+pcb_length = 35.56;                                                             
+pcb_width = 17.84;                                                              
+pcb_height = 1.57;                                                              
+usb_length = 5.0;                                                               
+usb_width = 7.5;                                                                
+usb_height = 2.5;                                                               
+button_length = 2.5;                                                            
+button_width = 3.5;                                                             
+button_height = 2.5 + 1.8;                                                      
 
 module  plate_spacing() {
   cube([
@@ -120,20 +130,68 @@ module keyboard_case_back () {
 
 
 module keyboard_case (plate_length, plate_width, plate_height, angle_trn) {
+  //plate catch dims
+  plate_lip_width = 7;
+  plate_lip_height = 10;
+
+  chassis_space_length = case_length - (case_thickness * 2);
+  chassis_space_width =  case_width - ((case_thickness * 2) + (plate_lip_width * 2));
+  chassis_space_height = 50;
+
+
+  difference() {
+    keyboard_chassis(plate_length, plate_width, plate_height, angle_trn);
+    
+    // chassis space
+    translate([case_thickness, case_thickness + plate_lip_width, case_thickness]) {
+      cube([chassis_space_length, chassis_space_width, chassis_space_height]);
+    };
+
+    // teensy catch
+  };
+};
+
+module keyboard_chassis (plate_length, plate_width, plate_height, angle_trn) {
+  spacing_factor = 2;
   keyboard_case_front();
   keyboard_case_back();
+
   translate([0, angle_trn, 0]) {
     rotate([rotate_f, 0, 0]) { 
       difference() {   
         cube([case_length, case_width, front_height]);
-        translate([case_thickness, case_thickness, front_height - plate_height]) {
-          cube([plate_length, plate_width, plate_height]);
+        translate([case_thickness, case_thickness, front_height - (plate_height * spacing_factor)]) {
+          cube([plate_length, plate_width, plate_height * spacing_factor]);
         };
       };
     };
   };
+
 };
 
+module teensy_32 () {                                                           
+    // https://www.pjrc.com/teensy/dimensions.html                              
+    //pcb                                                                       
+    cube([pcb_length,pcb_width, pcb_height]);                                   
+                                                                                
+    //usb                                                                       
+    translate([0,pcb_width/2 - usb_width/2,pcb_height]) cube([usb_length, usb_width, usb_height]);
+                                                                                
+    //button                                                                    
+    translate([2.54 + 29.97 - (button_length/2), pcb_width/2 - button_width/2, pcb_height]) cube([button_length, button_width, button_height]);
+                                                                                
+    //usb space                                                                 
+    color("red") translate([-10,pcb_width/2 -10/2,pcb_height - 0.20]) cube([10, 10, 10]);
+                                                                                
+    //button space                                                              
+    color("red") translate([2.54 + 29.97 - (button_length/2), pcb_width/2 - button_width/2, pcb_height]) cube([button_length, button_width, button_height + 10]);
+                                                                                
+    //pcb underspace                                                            
+    pcb_buff_length = 10;                                                       
+    pcb_buff_width = pcb_width + 6;                                             
+    pcb_buff_height = 4;                                                        
+    color("red") translate([0,-((pcb_buff_width - pcb_width)/2),-pcb_buff_height]) cube([pcb_buff_length,pcb_buff_width, pcb_buff_height]);
+};      
 
 //translate([0,0, 30]) {
 //  rotate([top_plate_rotation, 0, 0]) {
@@ -143,3 +201,8 @@ module keyboard_case (plate_length, plate_width, plate_height, angle_trn) {
 
 keyboard_case(plate_length, plate_width, plate_thickness, front_width);
 
+translate([0,0,30]) {
+  rotate([0, 180, 90]) {
+    teensy_32();
+  };
+};
