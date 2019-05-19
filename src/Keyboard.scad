@@ -10,16 +10,29 @@ hole_width = 14;
 // case dimensions
 front_height = 12.25;
 back_height = 22.25;
-height_diff = front_height -back_height;
+height_diff = front_height - back_height;
 case_thickness = 1.5;
 case_length =  plate_length + (case_thickness * 2);
 case_width = plate_width + (case_thickness * 2);
-rotate_f = 12; 
+rotate_f = 6; 
 
 
-// translations for angle 
-angle_trn_w = 2.55;
-angle_trn_h = 12;
+// front pieces calculations 
+front_angle_b = 180 - (90 + rotate_f);
+echo("front_angle_b=", front_angle_b);
+front_angle_a = 180 - (90 + front_angle_b);
+echo("front_angle_a=", front_angle_a);
+f_front_height = front_height * ( sin(front_angle_b) / sin(90) );
+echo("f_front_height=", f_front_height);
+front_width = sqrt(pow(front_height, 2) - pow(f_front_height, 2));
+echo("front_width=", front_width);
+
+
+// back pieces calculations
+back_angle_a = 180 - (90 + rotate_f);
+back_bottom_length = sin(back_angle_a) * case_width;
+b_back_height = sqrt(pow(case_width, 2) - pow(back_bottom_length, 2));
+
 
 module  plate_spacing() {
   cube([
@@ -63,17 +76,15 @@ module keyboard_plate (length, width, thickness) {
     };
 };
 
-module keyboard_case_front (case_length, angle_trh, angle_trw) {
-  echo("Within keyboard_case_front");
-  echo("case_length=", case_length);
+module keyboard_case_front () {
   polyhedron(
     points = [
       [0, 0, 0],                    // 0
       [case_length, 0, 0],          // 1
-      [case_length, angle_trw, 0],  // 2
-      [0, angle_trw, 0],            // 3
-      [case_length, 0, angle_trh],  // 4
-      [0, 0, angle_trh],            // 5
+      [case_length, front_width, 0],  // 2
+      [0, front_width, 0],            // 3
+      [case_length, 0, f_front_height],  // 4
+      [0, 0, f_front_height],            // 5
     ],
     faces = [
       [0, 1, 2, 3],
@@ -86,24 +97,15 @@ module keyboard_case_front (case_length, angle_trh, angle_trw) {
   );
 };
 
-module keyboard_case_back (case_length, case_width, angle_b, front_offset) {
-  echo("Within keyboard_case_back");
-  angle_a = 180 - (90 + angle_b);
-  bottom_length = sin(angle_a) * case_width;
-  back_height = sqrt(pow(case_width, 2) - pow(bottom_length, 2));
-
-  echo("angle_a=", angle_a, " angle_b=", angle_b);
-  echo("case_length (h)=", case_length, " case_width=", case_width, 
-    " bottom_length=", bottom_length, " back_height=", back_height);
-  
-  polyhedron(
+module keyboard_case_back () {  
+ polyhedron(
     points = [
-      [0, front_offset, 0],                                         // 0
-      [case_length, front_offset, 0],                               // 1
-      [case_length, front_offset + bottom_length, 0],               // 2
-      [0, front_offset + bottom_length, 0],                         // 3
-      [case_length, front_offset + bottom_length, back_height],   // 4
-      [0, front_offset + bottom_length, back_height],             // 5
+      [0, front_width, 0],                                         // 0
+      [case_length, front_width, 0],                               // 1
+      [case_length, front_width + back_bottom_length, 0],               // 2
+      [0, front_width + back_bottom_length, 0],                         // 3
+      [case_length, front_width + back_bottom_length, b_back_height],   // 4
+      [0, front_width + back_bottom_length, b_back_height],             // 5
     ],
     faces = [
       [0, 1, 2, 3],
@@ -118,9 +120,8 @@ module keyboard_case_back (case_length, case_width, angle_b, front_offset) {
 
 
 module keyboard_case (plate_length, plate_width, plate_height, angle_trn) {
-  echo("within keyboard_case");
-  echo("case_length=", case_length);
-  keyboard_case_front(case_length, angle_trn_h, angle_trn_w);
+  keyboard_case_front();
+  keyboard_case_back();
   translate([0, angle_trn, 0]) {
     rotate([rotate_f, 0, 0]) { 
       difference() {   
@@ -140,6 +141,5 @@ module keyboard_case (plate_length, plate_width, plate_height, angle_trn) {
 //    };
 //};
 
-keyboard_case(plate_length, plate_width, plate_thickness, angle_trn_w);
-keyboard_case_back(case_length, case_width, rotate_f, angle_trn_w);
+keyboard_case(plate_length, plate_width, plate_thickness, front_width);
 
