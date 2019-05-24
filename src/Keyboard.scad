@@ -15,17 +15,13 @@ case_thickness = 1.5;
 case_length =  plate_length + (case_thickness * 2);
 case_width = plate_width + (case_thickness * 2);
 rotate_f = 6; 
-
+spacing_factor = 1.5;
 
 // front pieces calculations 
 front_angle_b = 180 - (90 + rotate_f);
-echo("front_angle_b=", front_angle_b);
 front_angle_a = 180 - (90 + front_angle_b);
-echo("front_angle_a=", front_angle_a);
 f_front_height = front_height * ( sin(front_angle_b) / sin(90) );
-echo("f_front_height=", f_front_height);
 front_width = sqrt(pow(front_height, 2) - pow(f_front_height, 2));
-echo("front_width=", front_width);
 
 
 // back pieces calculations
@@ -44,6 +40,9 @@ button_length = 2.5;
 button_width = 3.5;                                                             
 button_height = 2.5 + 1.8;                                                      
 
+// mm screw catch dims
+screw_size = 3;
+
 module  plate_spacing() {
   cube([
     plate_length,
@@ -52,9 +51,19 @@ module  plate_spacing() {
   ]);
 };
  
+module mm_bolt_hole (diam, thickness) {
+  cylinder(h=thickness, r=(diam / 2));                                        
+};     
+
+module mm_bolt_catch (mm_diam, height) { 
+  difference () {                                                             
+    cylinder(h=height, r=mm_diam+0.3);                                          
+    mm_bolt_hole(mm_diam, height);                                            
+  };                                                                          
+};   
 
 module cherry_mx_mount_hole (thickness) {
-    color("red") cube([hole_length, hole_width, thickness]);
+  color("red") cube([hole_length, hole_width, thickness]);
 };
 
 module cherry_mx_row (num_sockets, thickness) {
@@ -148,13 +157,32 @@ module keyboard_case (plate_length, plate_width, plate_height, angle_trn) {
       };
 
     // teensy spacing
-    teensy_spacing();
-    
+    teensy_spacing(); 
+  };
+
+  hf1 = 3;
+  difference() {
+    translate([case_thickness + (hole_length * hf1) + (5 * hf1), case_width/2 - 10.5, 0])
+      mm_bolt_catch(screw_size, back_height);
+    plate_catch_spacing();
+  };
+
+  hf2 = 9;
+  difference() {
+    translate([case_thickness + (hole_length * hf2) + (5 * hf2), case_width/2 - 10.5, 0])
+      mm_bolt_catch(screw_size, back_height);
+    plate_catch_spacing();
   };
 };
 
+module plate_catch_spacing () {
+  translate([0, front_height, 0])
+    rotate([rotate_f, 0, 0])
+    translate([case_thickness, -(case_thickness*5), front_height - (plate_thickness * spacing_factor)])
+    cube([plate_length, plate_width , back_height]);
+};
+
 module keyboard_chassis (plate_length, plate_width, plate_height, angle_trn) {
-  spacing_factor = 2;
   keyboard_case_front();
   keyboard_case_back();
 
@@ -168,16 +196,15 @@ module keyboard_chassis (plate_length, plate_width, plate_height, angle_trn) {
       };
     };
   };
-
 };
 
 module teensy_catch () {
-  catch_length = pcb_width + (case_thickness * 2);
-  catch_width = 10;
+  catch_length = pcb_width - 2;
+  catch_width = 8;
   catch_height = 5.5;
 
   difference() {
-    translate([60 - (pcb_width + case_thickness), case_width - pcb_length - case_thickness, 0])
+    translate([61 - pcb_width, case_width - pcb_length - case_thickness, 0])
       cube([catch_length, catch_width, catch_height]);
     teensy_spacing();
   };
@@ -206,7 +233,7 @@ module teensy_32 () {
                                                                                 
     //pcb underspace                                                            
     pcb_buff_length = 10;                                                       
-    pcb_buff_width = pcb_width + 6;                                             
+    pcb_buff_width = pcb_width + 8;                                             
     pcb_buff_height = 4;                                                        
     color("red") 
       translate([0,-((pcb_buff_width - pcb_width)/2),-pcb_buff_height]) 
@@ -228,5 +255,5 @@ module teensy_spacing() {
 //};
 
 keyboard_case(plate_length, plate_width, plate_thickness, front_width);
-
+  
 
