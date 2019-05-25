@@ -32,7 +32,7 @@ b_back_height = sqrt(pow(case_width, 2) - pow(back_bottom_length, 2));
 // teensy calculations 
 pcb_length = 35.60;                                                             
 pcb_width = 17.95;                                                              
-pcb_height = 2;                                                              
+pcb_height = 2.25;                                                              
 usb_length = 5.5;                                                               
 usb_width = 7.5;                                                                
 usb_height = 3;                                                               
@@ -223,8 +223,8 @@ module teensy_32 () {
       cube([button_length, button_width, button_height]);
                                                                                 
     //usb space                                                                 
-    color("red") translate([-10,pcb_width/2 -10/2,pcb_height - 2]) 
-      cube([10, 10, 7.5]);
+    color("red") translate([-10,pcb_width/2 -10/2,pcb_height - 4]) 
+      cube([10, 10, 10]);
                                                                                 
     //button space                                                              
     color("red") 
@@ -233,8 +233,8 @@ module teensy_32 () {
                                                                                 
     //pcb underspace                                                            
     pcb_buff_length = 10;                                                       
-    pcb_buff_width = pcb_width + 8;                                             
-    pcb_buff_height = 4;                                                        
+    pcb_buff_width = pcb_width + 24;                                             
+    pcb_buff_height = 8;                                                        
     color("red") 
       translate([0,-((pcb_buff_width - pcb_width)/2),-pcb_buff_height]) 
       cube([pcb_buff_length,pcb_buff_width, pcb_buff_height]);
