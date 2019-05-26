@@ -1,7 +1,7 @@
 $fn = 100;
 
 // plate dimensions
-plate_thickness = 2.5;
+plate_thickness = 5.30;
 plate_length = 250 - 19;
 plate_width = 123 - 19;
 hole_length = 14;
@@ -15,7 +15,7 @@ case_thickness = 1.5;
 case_length =  plate_length + (case_thickness * 2);
 case_width = plate_width + (case_thickness * 2);
 rotate_f = 6; 
-spacing_factor = 1.5;
+spacing_factor = 1.10;
 
 // front pieces calculations 
 front_angle_b = 180 - (90 + rotate_f);
@@ -30,11 +30,11 @@ back_bottom_length = sin(back_angle_a) * case_width;
 b_back_height = sqrt(pow(case_width, 2) - pow(back_bottom_length, 2));
 
 // teensy calculations 
-pcb_length = 35.60;                                                             
+pcb_length = 36.3;                                                             
 pcb_width = 17.95;                                                              
 pcb_height = 2.25;                                                              
-usb_length = 5.5;                                                               
-usb_width = 7.5;                                                                
+usb_length = 6.5;                                                               
+usb_width = 8.8;                                                                
 usb_height = 3;                                                               
 button_length = 2.5;                                                            
 button_width = 3.5;                                                             
@@ -234,7 +234,7 @@ module teensy_32 () {
     //pcb underspace                                                            
     pcb_buff_length = 10;                                                       
     pcb_buff_width = pcb_width + 24;                                             
-    pcb_buff_height = 8;                                                        
+    pcb_buff_height = 7;                                                        
     color("red") 
       translate([0,-((pcb_buff_width - pcb_width)/2),-pcb_buff_height]) 
       cube([pcb_buff_length,pcb_buff_width, pcb_buff_height]);
